@@ -1,64 +1,48 @@
-// Package diff computes the difference between two EnvMaps.
 package diff
 
-import (
-	"github.com/envlens/envlens/internal/parser"
-)
+import "sort"
 
-// ChangeKind describes the type of change for a key.
-type ChangeKind string
+// Status represents the kind of change detected for a key.
+type Status string
 
 const (
-	Added    ChangeKind = "added"
-	Removed  ChangeKind = "removed"
-	Modified ChangeKind = "modified"
-	Unchanged ChangeKind = "unchanged"
+	Added    Status = "Added"
+	Removed  Status = "Removed"
+	Modified Status = "Modified"
+	Unchanged Status = "Unchanged"
 )
 
-// Entry represents a single diff entry.
+// Entry describes a single key comparison result.
 type Entry struct {
 	Key      string
-	Kind     ChangeKind
+	Status   Status
 	OldValue string
 	NewValue string
 }
 
-// Result holds the full diff between two env maps.
-type Result struct {
-	Entries []Entry
-}
-
-// HasChanges returns true if there are any non-unchanged entries.
-func (r Result) HasChanges() bool {
-	for _, e := range r.Entries {
-		if e.Kind != Unchanged {
-			return true
-		}
-	}
-	return false
-}
-
-// Compare diffs base against head and returns a Result.
-func Compare(base, head parser.EnvMap) Result {
-	seen := make(map[string]bool)
+// Compare diffs two env maps (base vs target) and returns a sorted list of entries.
+func Compare(base, target map[string]string) []Entry {
 	var entries []Entry
 
-	for k, baseVal := range base {
-		seen[k] = true
-		if headVal, ok := head[k]; !ok {
-			entries = append(entries, Entry{Key: k, Kind: Removed, OldValue: baseVal})
-		} else if baseVal != headVal {
-			entries = append(entries, Entry{Key: k, Kind: Modified, OldValue: baseVal, NewValue: headVal})
+	for k, bv := range base {
+		if tv, ok := target[k]; !ok {
+			entries = append(entries, Entry{Key: k, Status: Removed, OldValue: bv})
+		} else if bv != tv {
+			entries = append(entries, Entry{Key: k, Status: Modified, OldValue: bv, NewValue: tv})
 		} else {
-			entries = append(entries, Entry{Key: k, Kind: Unchanged, OldValue: baseVal, NewValue: headVal})
+			entries = append(entries, Entry{Key: k, Status: Unchanged, OldValue: bv, NewValue: tv})
 		}
 	}
 
-	for k, headVal := range head {
-		if !seen[k] {
-			entries = append(entries, Entry{Key: k, Kind: Added, NewValue: headVal})
+	for k, tv := range target {
+		if _, ok := base[k]; !ok {
+			entries = append(entries, Entry{Key: k, Status: Added, NewValue: tv})
 		}
 	}
 
-	return Result{Entries: entries}
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].Key < entries[j].Key
+	})
+
+	return entries
 }
