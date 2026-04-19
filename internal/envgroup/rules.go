@@ -28,3 +28,20 @@ func DefaultRules() []Rule {
 		{Name: "server", Pattern: "^(SERVER|HOST|PORT|ADDR)_?"},
 	}
 }
+
+// MergeRules combines base rules with overrides. If a rule in overrides shares
+// a name with a rule in base, the override takes precedence.
+func MergeRules(base, overrides []Rule) []Rule {
+	result := make([]Rule, 0, len(base)+len(overrides))
+	seen := make(map[string]bool)
+	for _, r := range overrides {
+		seen[r.Name] = true
+		result = append(result, r)
+	}
+	for _, r := range base {
+		if !seen[r.Name] {
+			result = append(result, r)
+		}
+	}
+	return result
+}
