@@ -61,3 +61,15 @@ func ScopeJSONReport(results []scope.Result) (string, error) {
 	}
 	return string(b), nil
 }
+
+// ScopeDivergentOnly returns a filtered slice containing only divergent results.
+// This is useful for reports that focus exclusively on mismatched keys across scopes.
+func ScopeDivergentOnly(results []scope.Result) []scope.Result {
+	filtered := make([]scope.Result, 0)
+	for _, r := range results {
+		if !r.Uniform {
+			filtered = append(filtered, r)
+		}
+	}
+	return filtered
+}
