@@ -58,6 +58,17 @@ func GetSummary(results []Result) Summary {
 	return s
 }
 
+// FilterChanged returns only the results where the value was modified.
+func FilterChanged(results []Result) []Result {
+	changed := make([]Result, 0)
+	for _, r := range results {
+		if r.Changed {
+			changed = append(changed, r)
+		}
+	}
+	return changed
+}
+
 func removeQuotes(s string) string {
 	if len(s) >= 2 {
 		if (s[0] == '"' && s[len(s)-1] == '"') || (s[0] == '\'' && s[len(s)-1] == '\'') {
