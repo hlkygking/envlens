@@ -43,3 +43,25 @@ func Load(path string) (*Snapshot, error) {
 	}
 	return &s, nil
 }
+
+// Diff returns keys that were added, removed, or changed between two snapshots.
+// It returns three maps: added, removed, and changed (keyed by variable name).
+func Diff(base, other *Snapshot) (added, removed, changed map[string]string) {
+	added = make(map[string]string)
+	removed = make(map[string]string)
+	changed = make(map[string]string)
+
+	for k, v := range other.Env {
+		if baseVal, ok := base.Env[k]; !ok {
+			added[k] = v
+		} else if baseVal != v {
+			changed[k] = v
+		}
+	}
+	for k, v := range base.Env {
+		if _, ok := other.Env[k]; !ok {
+			removed[k] = v
+		}
+	}
+	return added, removed, changed
+}
