@@ -40,8 +40,8 @@ func MultiJSONReport(w io.Writer, res *compare.MultiResult) error {
 		Entries interface{} `json:"entries"`
 	}
 	type output struct {
-		Base    string      `json:"base"`
-		Targets []pairJSON  `json:"targets"`
+		Base    string     `json:"base"`
+		Targets []pairJSON `json:"targets"`
 	}
 	out := output{Base: res.Base}
 	for _, pr := range res.Targets {
@@ -53,4 +53,25 @@ func MultiJSONReport(w io.Writer, res *compare.MultiResult) error {
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
 	return enc.Encode(out)
+}
+
+// MultiSummaryReport writes a concise summary of differences per target file.
+// It prints only the count of added, removed, and modified keys for each target.
+func MultiSummaryReport(w io.Writer, res *compare.MultiResult) {
+	fmt.Fprintf(w, "Base: %s\n", res.Base)
+	fmt.Fprintf(w, "%s\n", strings.Repeat("=", 50))
+	for _, pr := range res.Targets {
+		var added, removed, modified int
+		for _, e := range pr.Entries {
+			switch e.Status {
+			case "added":
+				added++
+			case "removed":
+				removed++
+			case "modified":
+				modified++
+			}
+		}
+		fmt.Fprintf(w, "  %s: +%d -%d ~%d\n", pr.Target, added, removed, modified)
+	}
 }
