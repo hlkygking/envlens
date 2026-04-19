@@ -39,6 +39,13 @@ func TestResolveTextReport_ShowsSummary(t *testing.T) {
 	}
 }
 
+func TestResolveTextReport_EmptyResults(t *testing.T) {
+	out := ResolveTextReport([]resolve.Result{})
+	if !strings.Contains(out, "total=0") {
+		t.Error("expected total=0 in report for empty results")
+	}
+}
+
 func TestResolveJSONReport_ValidJSON(t *testing.T) {
 	out, err := ResolveJSONReport(sampleResults())
 	if err != nil {
