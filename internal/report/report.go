@@ -52,7 +52,13 @@ func TextReport(w io.Writer, entries []diff.Entry) {
 }
 
 // JSONReport writes a JSON diff report to w.
+// If entries is empty, it writes an empty JSON array.
 func JSONReport(w io.Writer, entries []diff.Entry) {
+	if len(entries) == 0 {
+		fmt.Fprintln(w, "[]")
+		return
+	}
+
 	fmt.Fprintln(w, "[")
 	for i, e := range entries {
 		comma := ","
