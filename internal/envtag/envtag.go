@@ -77,6 +77,20 @@ func Summary(results []Result) (tagged, untagged int) {
 	return
 }
 
+// FilterByTag returns only the results that contain the given tag.
+func FilterByTag(results []Result, tag string) []Result {
+	out := []Result{}
+	for _, r := range results {
+		for _, t := range r.Tags {
+			if t == tag {
+				out = append(out, r)
+				break
+			}
+		}
+	}
+	return out
+}
+
 func unique(tags []string) []string {
 	seen := map[string]bool{}
 	out := []string{}
