@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/your/envlens/internal/env"
 )
@@ -68,23 +69,14 @@ func Apply(src, dst string, opts Options) (Result, error) {
 	}, nil
 }
 
+// isSensitive reports whether key contains any well-known sensitive substrings.
+// The comparison is case-insensitive so that keys like "db_password" and
+// "DB_PASSWORD" are both matched.
 func isSensitive(key string) bool {
 	sensitive := []string{"SECRET", "PASSWORD", "PASSWD", "TOKEN", "API_KEY", "PRIVATE"}
+	upper := strings.ToUpper(key)
 	for _, s := range sensitive {
-		if contains(key, s) {
-			return true
-		}
-	}
-	return false
-}
-
-func contains(s, sub string) bool {
-	return len(s) >= len(sub) && (s == sub || len(s) > 0 && containsRune(s, sub))
-}
-
-func containsRune(s, sub string) bool {
-	for i := 0; i <= len(s)-len(sub); i++ {
-		if s[i:i+len(sub)] == sub {
+		if strings.Contains(upper, s) {
 			return true
 		}
 	}
