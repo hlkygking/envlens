@@ -97,3 +97,10 @@ func TestToMap_OnlyResolved(t *testing.T) {
 		t.Errorf("unexpected APP_NAME: %s", m["APP_NAME"])
 	}
 }
+
+func TestResolve_EmptyEnvAndNoDefaults(t *testing.T) {
+	results := Resolve(map[string]string{}, Options{})
+	if len(results) != 0 {
+		t.Errorf("expected no results for empty env, got %d", len(results))
+	}
+}
