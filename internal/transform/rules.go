@@ -32,11 +32,14 @@ func parseRule(spec string) (Rule, error) {
 		return Rule{Op: op, Arg: parts[1]}, nil
 	case OpReplace:
 		if len(parts) < 3 {
-			return Rule{}, fmt.Errorf("op replace requires two arguments")
+			return Rule{}, fmt.Errorf("op replace requires two arguments (format: replace:old:new)")
 		}
 		return Rule{Op: op, Arg: parts[1], Arg2: parts[2]}, nil
 	default:
-		return Rule{}, fmt.Errorf("unknown op: %s", op)
+		if op == "" {
+			return Rule{}, fmt.Errorf("op name must not be empty")
+		}
+		return Rule{}, fmt.Errorf("unknown op %q (supported: %s)", op, strings.Join(SupportedOps(), ", "))
 	}
 }
 
