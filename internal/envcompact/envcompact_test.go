@@ -90,3 +90,19 @@ func TestGetSummary_Counts(t *testing.T) {
 		t.Errorf("expected 2 removed, got %d", removed)
 	}
 }
+
+func TestApply_NoStrategies(t *testing.T) {
+	// With no strategies applied, all entries should be kept.
+	env := map[string]string{"A": "", "B": "value", "C": "  "}
+	opts := envcompact.Options{Strategies: []envcompact.Strategy{}}
+	results := envcompact.Apply(env, opts)
+
+	if len(results) != len(env) {
+		t.Errorf("expected %d results, got %d", len(env), len(results))
+	}
+	for _, r := range results {
+		if r.Removed {
+			t.Errorf("expected key %q to be kept with no strategies, but it was removed", r.Key)
+		}
+	}
+}
