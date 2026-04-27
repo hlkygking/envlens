@@ -65,3 +65,16 @@ func Diff(base, other *Snapshot) (added, removed, changed map[string]string) {
 	}
 	return added, removed, changed
 }
+
+// Equal reports whether two snapshots contain identical environment variables.
+func Equal(a, b *Snapshot) bool {
+	if len(a.Env) != len(b.Env) {
+		return false
+	}
+	for k, v := range a.Env {
+		if bVal, ok := b.Env[k]; !ok || bVal != v {
+			return false
+		}
+	}
+	return true
+}
