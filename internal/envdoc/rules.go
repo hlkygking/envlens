@@ -10,6 +10,8 @@ const RuleFormat = "KEY:description:example:required:default"
 
 // ParseInline parses a slice of raw rule strings into Entry values.
 // Format: KEY:description:example:required:default
+// Each field is optional except for KEY. The required field must be
+// the literal string "true" to be treated as required.
 func ParseInline(rules []string) ([]Entry, error) {
 	var entries []Entry
 	for _, rule := range rules {
@@ -66,4 +68,13 @@ func FilterDocumented(results []Result) []Result {
 		}
 	}
 	return out
+}
+
+// IndexEntries returns a map of entry key to Entry for fast lookup.
+func IndexEntries(entries []Entry) map[string]Entry {
+	idx := make(map[string]Entry, len(entries))
+	for _, e := range entries {
+		idx[e.Key] = e
+	}
+	return idx
 }
